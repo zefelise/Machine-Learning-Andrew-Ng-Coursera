@@ -68,14 +68,19 @@ A2 = [ones(m,1), sigmoid(Z2)]; % 5000 x 26
 Z3 = A2*Theta2'; % 5000 x 10
 H = sigmoid(Z3);% 5000 x 10
 
-Y = zeros(m,num_labels);
-for i = 1:m,
-    Y(i,y(i))=1;
-end; % Y is 5000 x 10.
+Y = zeros(m,num_labels); % 5000 x 10.
+for k = 1:num_labels,
+    Y(:,k) = (y==k);
+end 
+%for i = 1:m,
+%    Y(i,y(i))=1;
+%end; % Y is 5000 x 10.
 
 Cost = (Y.*log(H)+(1.-Y).*log(1-H))/(-m); % 5000 x 10
 
-J = sum(sum(Cost));
+v_theta_wo_bias = [Theta1(:,2:end)(:) ; Theta2(:,2:end)(:)];
+reg_term = sum(v_theta_wo_bias.^2)*lambda/(2*m);
+J = sum(sum(Cost)) + reg_term;
 
 
 
