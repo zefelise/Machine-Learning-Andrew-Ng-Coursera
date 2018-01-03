@@ -27,8 +27,8 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % You need to return the following variables correctly
 J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+Theta1_grad = zeros(size(Theta1)); % 25 X 401
+Theta2_grad = zeros(size(Theta2)); % 10 x 26
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
@@ -71,32 +71,34 @@ H = sigmoid(Z3);% 5000 x 10
 Y = zeros(m,num_labels); % 5000 x 10.
 for k = 1:num_labels,
     Y(:,k) = (y==k);
-end 
-%for i = 1:m,
-%    Y(i,y(i))=1;
-%end; % Y is 5000 x 10.
+end
 
 Cost = (Y.*log(H)+(1.-Y).*log(1-H))/(-m); % 5000 x 10
 
-v_theta_wo_bias = [Theta1(:,2:end)(:) ; Theta2(:,2:end)(:)];
-reg_term = sum(v_theta_wo_bias.^2)*lambda/(2*m);
+theta_wo_bias = [Theta1(:,2:end)(:) ; Theta2(:,2:end)(:)];
+reg_term = sum(theta_wo_bias.^2)*lambda/(2*m);
 J = sum(sum(Cost)) + reg_term;
 
+delta3 = H.-Y; % 5000 X 10
+delta2 = delta3*Theta2.*A2.*(1-A2); % 5000 x 26
+delta2 = delta2(:,2:end); % 5000 x 25
 
+for i = 1:m,
+    D2_tmp = delta3(i,:)'*A2(i,:);
+    Theta2_grad = Theta2_grad .+ D2_tmp;
 
+    D1_tmp =  delta2(i,:)'*A1(i,:);
+    Theta1_grad = Theta1_grad .+ D1_tmp;
+end
 
+Theta1_reg = lambda.*[zeros(size(Theta1,1),1),Theta1(:,2:end)];
+Theta2_reg = lambda.*[zeros(size(Theta2,1),1),Theta2(:,2:end)];
 
+Theta1_grad = Theta1_grad .+ Theta1_reg;
+Theta2_grad = Theta2_grad .+ Theta2_reg;
 
-
-
-
-
-
-
-
-
-
-
+Theta2_grad = Theta2_grad ./m;
+Theta1_grad = Theta1_grad ./m;
 
 % -------------------------------------------------------------
 
